@@ -1,5 +1,6 @@
 import Badge from '../shared/Badge';
 import AIMatchResult from './AIMatchResult';
+import TeamFormationPanel from './TeamFormationPanel';
 
 function urgencyVariant(urgency) {
   if (urgency === 'Critical') return 'danger';
@@ -95,6 +96,9 @@ export default function TaskCard({
       {isCoordinator ? (
         <div className="task-matches">
           <AIMatchResult task={task} onAssign={onAssign} assigning={isBusy} />
+          {task.status !== 'Completed' && (
+            <TeamFormationPanel taskId={task.id} taskTitle={task.title} />
+          )}
         </div>
       ) : null}
     </article>
