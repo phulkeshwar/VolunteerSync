@@ -7,8 +7,7 @@ const INITIAL_FORM = {
   description: '',
   requiredSkills: [],
   urgency: 'Medium',
-  zone: '',
-  location: { lat: '', lng: '' },
+  city: '',
 };
 
 export default function CreateTaskForm({ onCreate, creating }) {
@@ -22,13 +21,7 @@ export default function CreateTaskForm({ onCreate, creating }) {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    const payload = {
-      ...form,
-      location: {
-        lat: form.location.lat === '' ? null : Number(form.location.lat),
-        lng: form.location.lng === '' ? null : Number(form.location.lng),
-      },
-    };
+    const payload = { ...form };
 
     const created = await onCreate(payload);
 
@@ -61,8 +54,7 @@ export default function CreateTaskForm({ onCreate, creating }) {
       description: task.description || '',
       requiredSkills: task.requiredSkills || [],
       urgency: task.urgency || 'Medium',
-      zone: task.zone && task.zone !== 'General' ? task.zone : form.zone,
-      location: { lat: '', lng: '' },
+      city: task.city && task.city !== 'General' ? task.city : form.city,
     });
     setGeneratedTasks([]);
     setShowGen(false);
@@ -96,7 +88,7 @@ export default function CreateTaskForm({ onCreate, creating }) {
               rows="3"
               value={crisisDesc}
               onChange={(e) => setCrisisDesc(e.target.value)}
-              placeholder="e.g. Flash flood in Zone B, 3000 displaced, need medical aid, food, and rescue teams..."
+              placeholder="e.g. Flash flood in Mumbai, 3000 displaced, need medical aid, food, and rescue teams..."
             />
           </div>
           {genError && <p className="form-message form-message--error" style={{ fontSize: '0.85rem' }}>{genError}</p>}
@@ -116,7 +108,7 @@ export default function CreateTaskForm({ onCreate, creating }) {
                   onClick={() => applyGeneratedTask(task)}
                 >
                   <span style={{ fontWeight: 700 }}>{task.title}</span>
-                  <span style={{ color: '#516170', fontSize: '0.82rem' }}>{task.urgency} · {task.zone} · {(task.requiredSkills || []).join(', ')}</span>
+                  <span style={{ color: '#516170', fontSize: '0.82rem' }}>{task.urgency} · {task.city} · {(task.requiredSkills || []).join(', ')}</span>
                 </button>
               ))}
             </div>
@@ -171,45 +163,30 @@ export default function CreateTaskForm({ onCreate, creating }) {
           </div>
 
           <div className="field">
-            <label>Zone</label>
-            <input
-              value={form.zone}
-              onChange={(event) => setForm((current) => ({ ...current, zone: event.target.value }))}
-              placeholder="Zone A"
+            <label>City</label>
+            <select
+              value={form.city}
+              onChange={(event) => setForm((current) => ({ ...current, city: event.target.value }))}
               required
-            />
-          </div>
-        </div>
-
-        <div className="form-grid">
-          <div className="field">
-            <label>Latitude</label>
-            <input
-              type="number"
-              step="any"
-              value={form.location.lat}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  location: { ...current.location, lat: event.target.value },
-                }))
-              }
-            />
-          </div>
-
-          <div className="field">
-            <label>Longitude</label>
-            <input
-              type="number"
-              step="any"
-              value={form.location.lng}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  location: { ...current.location, lng: event.target.value },
-                }))
-              }
-            />
+            >
+              <option value="" disabled>Select a city</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Bangalore">Bangalore</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Ahmedabad">Ahmedabad</option>
+              <option value="Chennai">Chennai</option>
+              <option value="Kolkata">Kolkata</option>
+              <option value="Surat">Surat</option>
+              <option value="Pune">Pune</option>
+              <option value="Jaipur">Jaipur</option>
+              <option value="Lucknow">Lucknow</option>
+              <option value="Kanpur">Kanpur</option>
+              <option value="Nagpur">Nagpur</option>
+              <option value="Indore">Indore</option>
+              <option value="Thane">Thane</option>
+              <option value="Bhopal">Bhopal</option>
+            </select>
           </div>
         </div>
 

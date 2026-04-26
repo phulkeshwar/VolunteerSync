@@ -42,8 +42,8 @@ export default function TaskCard({
 
       <div className="meta-grid">
         <div>
-          <span className="muted-label">Zone</span>
-          <strong>{task.zone}</strong>
+          <span className="muted-label">City</span>
+          <strong>{task.city}</strong>
         </div>
         <div>
           <span className="muted-label">Status</span>

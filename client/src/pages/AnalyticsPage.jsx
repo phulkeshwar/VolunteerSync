@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import AnalyticsCharts from '../components/Dashboard/AnalyticsCharts';
-import ZoneMap from '../components/Dashboard/ZoneMap';
+import CityMap from '../components/Dashboard/CityMap';
 import DemandHeatmap from '../components/Dashboard/DemandHeatmap';
 import Loader from '../components/shared/Loader';
 import Badge from '../components/shared/Badge';
@@ -100,14 +100,14 @@ export default function AnalyticsPage() {
         <div>
           <p className="eyebrow">Analytics</p>
           <h1>Understand where your volunteer capacity is strongest and weakest</h1>
-          <p>See zone balance, completion momentum, and map coverage without leaving the coordination flow.</p>
+          <p>See city balance, completion momentum, and map coverage without leaving the coordination flow.</p>
         </div>
       </div>
 
       {error ? <p className="form-message form-message--error">{error}</p> : null}
 
       <AnalyticsCharts overview={overview} zones={zones} timeline={timeline} />
-      <ZoneMap volunteers={volunteers} tasks={tasks} />
+      <CityMap volunteers={volunteers} tasks={tasks} />
 
       {/* Skill Gap Detection */}
       <section className="panel">
@@ -115,7 +115,7 @@ export default function AnalyticsPage() {
           <div>
             <p className="eyebrow">Intelligence</p>
             <h2>Skill Gap Detection</h2>
-            <p>Skills required by open tasks that are missing or insufficient in each zone.</p>
+            <p>Skills required by open tasks that are missing or insufficient in each city.</p>
           </div>
           <Badge variant={skillGaps.length > 0 ? 'danger' : 'success'}>
             {skillGaps.length} gap{skillGaps.length !== 1 ? 's' : ''}
@@ -132,7 +132,7 @@ export default function AnalyticsPage() {
                     {gap.volunteersWithSkill === 0 ? 'Missing' : 'Insufficient'}
                   </Badge>
                 </div>
-                <p className="muted-text">Zone: <strong>{gap.zone}</strong></p>
+                <p className="muted-text">City: <strong>{gap.city}</strong></p>
                 <div className="skill-gap-stats">
                   <span>
                     <strong>{gap.tasksNeedingSkill}</strong> task{gap.tasksNeedingSkill !== 1 ? 's' : ''} need this
@@ -159,7 +159,7 @@ export default function AnalyticsPage() {
           <div>
             <p className="eyebrow">AI Forecasting</p>
             <h2>Predictive Demand Analysis</h2>
-            <p>AI predicts high-need zones for the next 24–48 hours based on historical patterns.</p>
+            <p>AI predicts high-need cities for the next 24–48 hours based on historical patterns.</p>
           </div>
           {!forecast && (
             <button className="btn btn--primary" onClick={loadForecast} disabled={forecastLoading} id="btn-load-forecast">

@@ -6,7 +6,7 @@ export default function VolunteerCard({ volunteer, action }) {
       <div className="volunteer-card__header">
         <div>
           <h4>{volunteer.name}</h4>
-          <p>{volunteer.location?.zone || 'Zone pending'}</p>
+          <p>{volunteer.location?.city || 'City pending'}</p>
         </div>
         <Badge variant={volunteer.availability ? 'success' : 'warning'}>
           {volunteer.availability ? 'Available' : 'Busy'}

@@ -13,8 +13,8 @@ function taskQueryFromRequest(req) {
     query.status = req.query.status;
   }
 
-  if (req.query.zone) {
-    query.zone = req.query.zone;
+  if (req.query.city) {
+    query.city = req.query.city;
   }
 
   if (req.query.urgency) {
@@ -76,10 +76,10 @@ router.get('/:id', protect, async (req, res) => {
 
 router.post('/', protect, requireRole('coordinator'), async (req, res) => {
   try {
-    const { title, description, requiredSkills = [], urgency, zone, location = {} } = req.body;
+    const { title, description, requiredSkills = [], urgency, city } = req.body;
 
-    if (!title || !zone) {
-      return res.status(400).json({ message: 'Title and zone are required.' });
+    if (!title || !city) {
+      return res.status(400).json({ message: 'Title and city are required.' });
     }
 
     const task = await Task.create({
@@ -87,11 +87,7 @@ router.post('/', protect, requireRole('coordinator'), async (req, res) => {
       description,
       requiredSkills,
       urgency: urgency || 'Medium',
-      zone,
-      location: {
-        lat: location.lat ?? null,
-        lng: location.lng ?? null,
-      },
+      city,
       createdBy: req.user._id,
     });
 
@@ -123,7 +119,7 @@ router.put('/:id', protect, async (req, res) => {
     const previousAssignedTo = task.assignedTo ? String(task.assignedTo) : null;
 
     if (isCoordinator) {
-      const editableFields = ['title', 'description', 'requiredSkills', 'urgency', 'zone', 'location'];
+      const editableFields = ['title', 'description', 'requiredSkills', 'urgency', 'city'];
       editableFields.forEach((field) => {
         if (Object.prototype.hasOwnProperty.call(req.body, field)) {
           task[field] = req.body[field];

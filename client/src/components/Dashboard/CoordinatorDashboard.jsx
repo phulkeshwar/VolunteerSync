@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Badge from '../shared/Badge';
+import VolunteerSearch from './VolunteerSearch';
 
 function StatCard({ label, value, detail }) {
   return (
@@ -47,6 +48,8 @@ export default function CoordinatorDashboard({ overview, tasks, activity }) {
         </div>
       </section>
 
+      <VolunteerSearch />
+
       <section className="panel">
         <div className="section-heading">
           <div>
@@ -63,7 +66,7 @@ export default function CoordinatorDashboard({ overview, tasks, activity }) {
                   <h4>{task.title}</h4>
                   <Badge variant="danger">{task.urgency}</Badge>
                 </div>
-                <p>{task.zone}</p>
+                <p>{task.city}</p>
                 <span className="muted-text">{task.status}</span>
               </article>
             ))}

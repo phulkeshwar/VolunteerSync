@@ -10,9 +10,7 @@ const VolunteerSchema = new mongoose.Schema(
     bio: { type: String, trim: true, default: '' },
     skills: [{ type: String, trim: true }],
     location: {
-      zone: { type: String, trim: true, default: '' },
-      lat: { type: Number, default: null },
-      lng: { type: Number, default: null },
+      city: { type: String, trim: true, default: '' },
     },
     availability: { type: Boolean, default: true },
     experience: {

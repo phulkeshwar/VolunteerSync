@@ -11,7 +11,7 @@ const router = express.Router();
 router.get('/', protect, async (req, res) => {
   try {
     const query = {};
-    if (req.query.zone) query.zone = req.query.zone;
+    if (req.query.city) query.city = req.query.city;
     if (req.query.category) query.category = req.query.category;
     if (req.query.lowStock === 'true') {
       query.$expr = { $lte: ['$quantity', '$threshold'] };
@@ -19,7 +19,7 @@ router.get('/', protect, async (req, res) => {
 
     const resources = await Resource.find(query)
       .populate('lastUpdatedBy', 'name')
-      .sort({ zone: 1, category: 1, name: 1 });
+      .sort({ city: 1, category: 1, name: 1 });
 
     return res.json(resources);
   } catch (error) {
@@ -34,7 +34,7 @@ router.get('/summary', protect, async (req, res) => {
     const summary = await Resource.aggregate([
       {
         $group: {
-          _id: '$zone',
+          _id: '$city',
           totalItems: { $sum: 1 },
           categories: { $addToSet: '$category' },
           lowStockCount: {
@@ -47,7 +47,7 @@ router.get('/summary', protect, async (req, res) => {
     ]);
 
     return res.json(summary.map((s) => ({
-      zone: s._id,
+      city: s._id,
       totalItems: s.totalItems,
       categories: s.categories,
       lowStockCount: s.lowStockCount,
@@ -67,7 +67,7 @@ router.get('/ai-redistribute', protect, requireRole('coordinator'), async (req, 
       Task.aggregate([
         {
           $group: {
-            _id: '$zone',
+            _id: '$city',
             activeTasks: {
               $sum: { $cond: [{ $in: ['$status', ['Open', 'Assigned', 'In Progress']] }, 1, 0] },
             },
@@ -80,7 +80,7 @@ router.get('/ai-redistribute', protect, requireRole('coordinator'), async (req, 
       { $match: { role: 'volunteer' } },
       {
         $group: {
-          _id: '$location.zone',
+          _id: '$location.city',
           volunteers: { $sum: 1 },
           availableVolunteers: {
             $sum: { $cond: ['$availability', 1, 0] },
@@ -90,13 +90,13 @@ router.get('/ai-redistribute', protect, requireRole('coordinator'), async (req, 
     ]);
 
     const zoneMap = new Map();
-    zones.forEach((z) => zoneMap.set(z._id, { zone: z._id, activeTasks: z.activeTasks, volunteers: 0 }));
+    zones.forEach((z) => zoneMap.set(z._id, { city: z._id, activeTasks: z.activeTasks, volunteers: 0 }));
     volunteerZones.forEach((vz) => {
-      const zone = vz._id || 'Unassigned';
-      const existing = zoneMap.get(zone) || { zone, activeTasks: 0 };
+      const city = vz._id || 'Unassigned';
+      const existing = zoneMap.get(city) || { city, activeTasks: 0 };
       existing.volunteers = vz.volunteers;
       existing.availableVolunteers = vz.availableVolunteers;
-      zoneMap.set(zone, existing);
+      zoneMap.set(city, existing);
     });
 
     const zonesArray = Array.from(zoneMap.values());
@@ -112,10 +112,10 @@ router.get('/ai-redistribute', protect, requireRole('coordinator'), async (req, 
 // POST /api/resources — create resource (coordinator only)
 router.post('/', protect, requireRole('coordinator'), async (req, res) => {
   try {
-    const { name, category, quantity, unit, zone, threshold, notes } = req.body;
+    const { name, category, quantity, unit, city, threshold, notes } = req.body;
 
-    if (!name || !category || !zone) {
-      return res.status(400).json({ message: 'Name, category, and zone are required.' });
+    if (!name || !category || !city) {
+      return res.status(400).json({ message: 'Name, category, and city are required.' });
     }
 
     const resource = await Resource.create({
@@ -123,7 +123,7 @@ router.post('/', protect, requireRole('coordinator'), async (req, res) => {
       category,
       quantity: quantity ?? 0,
       unit: unit || 'units',
-      zone,
+      city,
       threshold: threshold ?? 10,
       notes: notes || '',
       lastUpdatedBy: req.user._id,
@@ -148,7 +148,7 @@ router.put('/:id', protect, requireRole('coordinator'), async (req, res) => {
       return res.status(404).json({ message: 'Resource not found.' });
     }
 
-    const fields = ['name', 'category', 'quantity', 'unit', 'zone', 'threshold', 'notes'];
+    const fields = ['name', 'category', 'quantity', 'unit', 'city', 'threshold', 'notes'];
     fields.forEach((field) => {
       if (Object.prototype.hasOwnProperty.call(req.body, field)) {
         resource[field] = req.body[field];

@@ -18,8 +18,8 @@ router.get('/', protect, requireRole('coordinator'), async (req, res) => {
       query.availability = true;
     }
 
-    if (req.query.zone) {
-      query['location.zone'] = req.query.zone;
+    if (req.query.city) {
+      query['location.city'] = { $regex: new RegExp(req.query.city, 'i') };
     }
 
     if (req.query.skill) {

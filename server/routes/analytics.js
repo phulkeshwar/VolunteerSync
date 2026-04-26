@@ -64,7 +64,7 @@ router.get('/zones', protect, requireRole('coordinator'), async (req, res) => {
         { $match: { role: 'volunteer' } },
         {
           $group: {
-            _id: { $ifNull: ['$location.zone', 'Unassigned'] },
+            _id: { $ifNull: ['$location.city', 'Unassigned'] },
             volunteers: { $sum: 1 },
             availableVolunteers: {
               $sum: {
@@ -77,7 +77,7 @@ router.get('/zones', protect, requireRole('coordinator'), async (req, res) => {
       Task.aggregate([
         {
           $group: {
-            _id: { $ifNull: ['$zone', 'Unassigned'] },
+            _id: { $ifNull: ['$city', 'Unassigned'] },
             activeTasks: {
               $sum: {
                 $cond: [{ $in: ['$status', ['Open', 'Assigned', 'In Progress']] }, 1, 0],
@@ -97,7 +97,7 @@ router.get('/zones', protect, requireRole('coordinator'), async (req, res) => {
 
     volunteerStats.forEach((item) => {
       zoneMap.set(item._id, {
-        zone: item._id || 'Unassigned',
+        city: item._id || 'Unassigned',
         volunteers: item.volunteers,
         availableVolunteers: item.availableVolunteers,
         activeTasks: 0,
@@ -106,9 +106,9 @@ router.get('/zones', protect, requireRole('coordinator'), async (req, res) => {
     });
 
     taskStats.forEach((item) => {
-      const zone = item._id || 'Unassigned';
-      const current = zoneMap.get(zone) || {
-        zone,
+      const city = item._id || 'Unassigned';
+      const current = zoneMap.get(city) || {
+        city,
         volunteers: 0,
         availableVolunteers: 0,
         activeTasks: 0,
@@ -117,10 +117,10 @@ router.get('/zones', protect, requireRole('coordinator'), async (req, res) => {
 
       current.activeTasks = item.activeTasks;
       current.completed = item.completed;
-      zoneMap.set(zone, current);
+      zoneMap.set(city, current);
     });
 
-    return res.json(Array.from(zoneMap.values()).sort((a, b) => a.zone.localeCompare(b.zone)));
+    return res.json(Array.from(zoneMap.values()).sort((a, b) => a.city.localeCompare(b.city)));
   } catch (error) {
     console.error('Analytics zones error:', error);
     return res.status(500).json({ message: 'Failed to fetch zone analytics.' });
@@ -180,40 +180,40 @@ router.get('/skill-gaps', protect, requireRole('coordinator'), async (req, res) 
     const openTasks = await Task.find({ status: { $in: ['Open', 'Assigned', 'In Progress'] } }).lean();
     const volunteers = await Volunteer.find({ role: 'volunteer' }).lean();
 
-    // Build zone -> available skills map
+    // Build city -> available skills map
     const zoneVolunteerSkills = {};
     volunteers.forEach((v) => {
-      const zone = v.location?.zone || 'Unassigned';
-      if (!zoneVolunteerSkills[zone]) zoneVolunteerSkills[zone] = new Set();
-      (v.skills || []).forEach((skill) => zoneVolunteerSkills[zone].add(skill.toLowerCase().trim()));
+      const city = v.location?.city || 'Unassigned';
+      if (!zoneVolunteerSkills[city]) zoneVolunteerSkills[city] = new Set();
+      (v.skills || []).forEach((skill) => zoneVolunteerSkills[city].add(skill.toLowerCase().trim()));
     });
 
-    // Build zone -> required skills map
+    // Build city -> required skills map
     const zoneRequiredSkills = {};
     openTasks.forEach((t) => {
-      const zone = t.zone || 'Unassigned';
-      if (!zoneRequiredSkills[zone]) zoneRequiredSkills[zone] = {};
+      const city = t.city || 'Unassigned';
+      if (!zoneRequiredSkills[city]) zoneRequiredSkills[city] = {};
       (t.requiredSkills || []).forEach((skill) => {
         const s = skill.toLowerCase().trim();
-        zoneRequiredSkills[zone][s] = (zoneRequiredSkills[zone][s] || 0) + 1;
+        zoneRequiredSkills[city][s] = (zoneRequiredSkills[city][s] || 0) + 1;
       });
     });
 
     // Find gaps
     const gaps = [];
-    Object.entries(zoneRequiredSkills).forEach(([zone, skillCounts]) => {
-      const available = zoneVolunteerSkills[zone] || new Set();
+    Object.entries(zoneRequiredSkills).forEach(([city, skillCounts]) => {
+      const available = zoneVolunteerSkills[city] || new Set();
       Object.entries(skillCounts).forEach(([skill, count]) => {
         if (!available.has(skill)) {
-          gaps.push({ zone, skill, tasksNeedingSkill: count, volunteersWithSkill: 0 });
+          gaps.push({ city, skill, tasksNeedingSkill: count, volunteersWithSkill: 0 });
         } else {
-          // Count volunteers with this skill in zone
+          // Count volunteers with this skill in city
           const cnt = volunteers.filter(
-            (v) => (v.location?.zone || 'Unassigned') === zone &&
+            (v) => (v.location?.city || 'Unassigned') === city &&
               (v.skills || []).map((s) => s.toLowerCase().trim()).includes(skill)
           ).length;
           if (cnt < count) {
-            gaps.push({ zone, skill, tasksNeedingSkill: count, volunteersWithSkill: cnt });
+            gaps.push({ city, skill, tasksNeedingSkill: count, volunteersWithSkill: cnt });
           }
         }
       });

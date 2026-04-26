@@ -10,9 +10,7 @@ function buildFormFromUser(user) {
     bio: user?.bio || '',
     skills: user?.skills || [],
     location: {
-      zone: user?.location?.zone || '',
-      lat: user?.location?.lat ?? '',
-      lng: user?.location?.lng ?? '',
+      city: user?.location?.city || '',
     },
     availability: user?.availability ?? true,
     experience: user?.experience || 'Beginner',
@@ -41,9 +39,7 @@ export default function VolunteerProfile({ activeTasks = [] }) {
       const payload = {
         ...form,
         location: {
-          zone: form.location.zone,
-          lat: form.location.lat === '' ? null : Number(form.location.lat),
-          lng: form.location.lng === '' ? null : Number(form.location.lng),
+          city: form.location.city,
         },
       };
       const { data } = await api.put(`/volunteers/${user.id}`, payload);
@@ -96,49 +92,35 @@ export default function VolunteerProfile({ activeTasks = [] }) {
           </div>
 
           <div className="field">
-            <label>Zone</label>
-            <input
-              value={form.location.zone}
+            <label>City</label>
+            <select
+              value={form.location.city}
               onChange={(event) =>
                 updateForm((current) => ({
                   ...current,
-                  location: { ...current.location, zone: event.target.value },
+                  location: { ...current.location, city: event.target.value },
                 }))
               }
-              placeholder="North Sector"
-            />
-          </div>
-
-          <div className="form-grid">
-            <div className="field">
-              <label>Latitude</label>
-              <input
-                type="number"
-                step="any"
-                value={form.location.lat}
-                onChange={(event) =>
-                  updateForm((current) => ({
-                    ...current,
-                    location: { ...current.location, lat: event.target.value },
-                  }))
-                }
-              />
-            </div>
-
-            <div className="field">
-              <label>Longitude</label>
-              <input
-                type="number"
-                step="any"
-                value={form.location.lng}
-                onChange={(event) =>
-                  updateForm((current) => ({
-                    ...current,
-                    location: { ...current.location, lng: event.target.value },
-                  }))
-                }
-              />
-            </div>
+              required
+            >
+              <option value="" disabled>Select your city</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Bangalore">Bangalore</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Ahmedabad">Ahmedabad</option>
+              <option value="Chennai">Chennai</option>
+              <option value="Kolkata">Kolkata</option>
+              <option value="Surat">Surat</option>
+              <option value="Pune">Pune</option>
+              <option value="Jaipur">Jaipur</option>
+              <option value="Lucknow">Lucknow</option>
+              <option value="Kanpur">Kanpur</option>
+              <option value="Nagpur">Nagpur</option>
+              <option value="Indore">Indore</option>
+              <option value="Thane">Thane</option>
+              <option value="Bhopal">Bhopal</option>
+            </select>
           </div>
 
           <SkillTagInput
@@ -189,7 +171,7 @@ export default function VolunteerProfile({ activeTasks = [] }) {
             {activeTasks.map((task) => (
               <article key={task.id} className="mini-card">
                 <h4>{task.title}</h4>
-                <p>{task.zone}</p>
+                <p>{task.city}</p>
                 <span className="muted-text">{task.status}</span>
               </article>
             ))}

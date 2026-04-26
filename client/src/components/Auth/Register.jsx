@@ -10,7 +10,7 @@ const INITIAL_FORM = {
   password: '',
   organization: '',
   skills: [],
-  location: { zone: '', lat: '', lng: '' },
+  location: { city: '' },
   availability: true,
   experience: 'Beginner',
   bio: '',
@@ -30,9 +30,7 @@ export default function Register() {
       const payload = {
         ...form,
         location: {
-          zone: form.location.zone,
-          lat: form.location.lat === '' ? null : Number(form.location.lat),
-          lng: form.location.lng === '' ? null : Number(form.location.lng),
+          city: form.location.city,
         },
       };
 
@@ -133,17 +131,35 @@ export default function Register() {
 
               <div className="form-grid">
                 <div className="field">
-                  <label>Zone</label>
-                  <input
-                    value={form.location.zone}
+                  <label>City</label>
+                  <select
+                    value={form.location.city}
                     onChange={(event) =>
                       setForm((current) => ({
                         ...current,
-                        location: { ...current.location, zone: event.target.value },
+                        location: { ...current.location, city: event.target.value },
                       }))
                     }
-                    placeholder="North Sector"
-                  />
+                    required
+                  >
+                    <option value="" disabled>Select your city</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Bangalore">Bangalore</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Ahmedabad">Ahmedabad</option>
+                    <option value="Chennai">Chennai</option>
+                    <option value="Kolkata">Kolkata</option>
+                    <option value="Surat">Surat</option>
+                    <option value="Pune">Pune</option>
+                    <option value="Jaipur">Jaipur</option>
+                    <option value="Lucknow">Lucknow</option>
+                    <option value="Kanpur">Kanpur</option>
+                    <option value="Nagpur">Nagpur</option>
+                    <option value="Indore">Indore</option>
+                    <option value="Thane">Thane</option>
+                    <option value="Bhopal">Bhopal</option>
+                  </select>
                 </div>
 
                 <label className="checkbox checkbox--inline">
@@ -156,38 +172,6 @@ export default function Register() {
                   />
                   <span>Available now</span>
                 </label>
-              </div>
-
-              <div className="form-grid">
-                <div className="field">
-                  <label>Latitude</label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={form.location.lat}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        location: { ...current.location, lat: event.target.value },
-                      }))
-                    }
-                  />
-                </div>
-
-                <div className="field">
-                  <label>Longitude</label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={form.location.lng}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        location: { ...current.location, lng: event.target.value },
-                      }))
-                    }
-                  />
-                </div>
               </div>
             </>
           ) : null}

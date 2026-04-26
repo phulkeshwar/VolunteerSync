@@ -20,11 +20,7 @@ const TaskSchema = new mongoose.Schema(
       enum: ['Low', 'Medium', 'Critical'],
       default: 'Medium',
     },
-    zone: { type: String, required: true, trim: true },
-    location: {
-      lat: { type: Number, default: null },
-      lng: { type: Number, default: null },
-    },
+    city: { type: String, required: true, trim: true },
     status: {
       type: String,
       enum: ['Open', 'Assigned', 'In Progress', 'Completed'],
@@ -38,7 +34,7 @@ const TaskSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-TaskSchema.index({ status: 1, zone: 1, urgency: 1 });
+TaskSchema.index({ status: 1, city: 1, urgency: 1 });
 TaskSchema.index({ createdBy: 1 });
 TaskSchema.index({ assignedTo: 1 });
 

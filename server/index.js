@@ -55,7 +55,7 @@ app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/resources', require('./routes/resources'));
 app.use('/api/forecast', require('./routes/forecast'));
 app.use('/api/crisis', require('./routes/crisis'));
-app.use('/api/routing', require('./routes/routing'));
+// Routing removed
 
 require('./socket/socketHandler')(io);
 

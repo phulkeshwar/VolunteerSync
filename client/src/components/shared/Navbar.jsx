@@ -73,13 +73,30 @@ export default function Navbar() {
         <div className="nav-actions">
           {user ? (
             <>
-              <div className="user-chip">
-                <span>{user.name}</span>
-                <small>{user.role}</small>
+              <div className="profile-menu">
+                <button 
+                  className="profile-btn" 
+                  onClick={() => {
+                    document.getElementById('profile-dropdown')?.classList.toggle('show');
+                  }}
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget)) {
+                      setTimeout(() => document.getElementById('profile-dropdown')?.classList.remove('show'), 150);
+                    }
+                  }}
+                >
+                  {user.name.charAt(0).toUpperCase()}
+                </button>
+                <div id="profile-dropdown" className="profile-dropdown">
+                  <div className="profile-dropdown__header">
+                    <strong>{user.name}</strong>
+                    <small>{user.role}</small>
+                  </div>
+                  <button type="button" className="profile-dropdown__action" onClick={logout}>
+                    Logout
+                  </button>
+                </div>
               </div>
-              <button type="button" className="btn btn--ghost" onClick={logout}>
-                Logout
-              </button>
             </>
           ) : (
             <>

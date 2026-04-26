@@ -17,16 +17,16 @@ export default function TaskBoard(props) {
   const [filters, setFilters] = useState({
     status: 'All',
     urgency: 'All',
-    zone: 'All',
+    city: 'All',
   });
 
   const deferredTasks = useDeferredValue(tasks);
-  const zones = Array.from(new Set(tasks.map((task) => task.zone).filter(Boolean))).sort();
+  const cities = Array.from(new Set(tasks.map((task) => task.city).filter(Boolean))).sort();
 
   const filteredTasks = deferredTasks.filter((task) => {
     if (filters.status !== 'All' && task.status !== filters.status) return false;
     if (filters.urgency !== 'All' && task.urgency !== filters.urgency) return false;
-    if (filters.zone !== 'All' && task.zone !== filters.zone) return false;
+    if (filters.city !== 'All' && task.city !== filters.city) return false;
     return true;
   });
 
@@ -60,14 +60,14 @@ export default function TaskBoard(props) {
         </label>
 
         <label>
-          <span>Zone</span>
+          <span>City</span>
           <select
-            value={filters.zone}
-            onChange={(event) => setFilters((current) => ({ ...current, zone: event.target.value }))}
+            value={filters.city}
+            onChange={(event) => setFilters((current) => ({ ...current, city: event.target.value }))}
           >
             <option>All</option>
-            {zones.map((zone) => (
-              <option key={zone}>{zone}</option>
+            {cities.map((c) => (
+              <option key={c}>{c}</option>
             ))}
           </select>
         </label>

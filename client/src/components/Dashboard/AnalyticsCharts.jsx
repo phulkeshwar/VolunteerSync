@@ -56,7 +56,7 @@ export default function AnalyticsCharts({ overview, zones, timeline }) {
       <section className="panel panel--span-2">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Zone Balance</p>
+            <p className="eyebrow">City Balance</p>
             <h3>Volunteers versus active tasks</h3>
           </div>
         </div>
@@ -65,7 +65,7 @@ export default function AnalyticsCharts({ overview, zones, timeline }) {
           <ResponsiveContainer width="100%" height={320}>
             <BarChart data={zones}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="zone" />
+              <XAxis dataKey="city" />
               <YAxis allowDecimals={false} />
               <Tooltip />
               <Legend />

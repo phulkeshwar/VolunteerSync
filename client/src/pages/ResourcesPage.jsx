@@ -17,7 +17,7 @@ const CATEGORY_ICONS = {
   Other: '📦',
 };
 
-const EMPTY_FORM = { name: '', category: 'Food', quantity: 0, unit: 'units', zone: '', threshold: 10, notes: '' };
+const EMPTY_FORM = { name: '', category: 'Food', quantity: 0, unit: 'units', city: '', threshold: 10, notes: '' };
 
 function ResourceForm({ initial = EMPTY_FORM, onSave, onCancel, saving }) {
   const [form, setForm] = useState(initial);
@@ -57,8 +57,8 @@ function ResourceForm({ initial = EMPTY_FORM, onSave, onCancel, saving }) {
           <input {...field('unit')} placeholder="kg, litres, units..." />
         </div>
         <div className="field">
-          <label>Zone</label>
-          <input {...field('zone')} placeholder="Zone A" required />
+          <label>City</label>
+          <input {...field('city')} placeholder="Delhi" required />
         </div>
         <div className="field">
           <label>Low Stock Threshold</label>
@@ -93,7 +93,7 @@ function ResourceCard({ resource, onEdit, onDelete }) {
         <span className="resource-icon">{CATEGORY_ICONS[resource.category] || '📦'}</span>
         <div className="resource-card__title">
           <h4>{resource.name}</h4>
-          <p className="muted-text">{resource.zone}</p>
+          <p className="muted-text">{resource.city}</p>
         </div>
         <Badge variant={isLow ? 'danger' : 'success'}>
           {isLow ? 'Low Stock' : 'OK'}
@@ -133,7 +133,7 @@ export default function ResourcesPage() {
   const [saving, setSaving] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
-  const [filterZone, setFilterZone] = useState('');
+  const [filterCity, setFilterCity] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterLow, setFilterLow] = useState(false);
 
@@ -144,7 +144,7 @@ export default function ResourcesPage() {
     setError('');
     try {
       const params = new URLSearchParams();
-      if (filterZone) params.set('zone', filterZone);
+      if (filterCity) params.set('city', filterCity);
       if (filterCategory) params.set('category', filterCategory);
       if (filterLow) params.set('lowStock', 'true');
       const res = await api.get(`/resources?${params}`);
@@ -156,7 +156,7 @@ export default function ResourcesPage() {
     }
   }
 
-  useEffect(() => { load(); }, [filterZone, filterCategory, filterLow, lastEvent?.timestamp]);
+  useEffect(() => { load(); }, [filterCity, filterCategory, filterLow, lastEvent?.timestamp]);
 
   async function handleSave(data) {
     setSaving(true);
@@ -199,7 +199,7 @@ export default function ResourcesPage() {
     }
   }
 
-  const zones = [...new Set(resources.map((r) => r.zone))].sort();
+  const cities = [...new Set(resources.map((r) => r.city))].sort();
   const lowCount = resources.filter((r) => r.quantity <= r.threshold).length;
 
   if (loading) return <Loader label="Loading resources" />;
@@ -210,7 +210,7 @@ export default function ResourcesPage() {
         <div>
           <p className="eyebrow">Inventory Management</p>
           <h1>Resource Tracking</h1>
-          <p>Zone-wise inventory of food, medicine, vehicles, and equipment.</p>
+          <p>City-wise inventory of food, medicine, vehicles, and equipment.</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           {isCoordinator && (
@@ -284,10 +284,10 @@ export default function ResourcesPage() {
       {/* Filters */}
       <div className="filters">
         <label>
-          <span className="muted-label">Zone</span>
-          <select value={filterZone} onChange={(e) => setFilterZone(e.target.value)}>
-            <option value="">All zones</option>
-            {zones.map((z) => <option key={z}>{z}</option>)}
+          <span className="muted-label">City</span>
+          <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)}>
+            <option value="">All cities</option>
+            {cities.map((c) => <option key={c}>{c}</option>)}
           </select>
         </label>
         <label>
@@ -318,7 +318,7 @@ export default function ResourcesPage() {
         <div className="empty-state panel">
           <p style={{ fontSize: '3rem' }}>📦</p>
           <h3>No resources found</h3>
-          <p>Add your first resource to start tracking zone-wise inventory.</p>
+          <p>Add your first resource to start tracking city-wise inventory.</p>
         </div>
       )}
     </div>

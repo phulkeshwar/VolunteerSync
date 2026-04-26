@@ -10,7 +10,7 @@ const ResourceSchema = new mongoose.Schema(
     },
     quantity: { type: Number, required: true, min: 0, default: 0 },
     unit: { type: String, trim: true, default: 'units' },
-    zone: { type: String, required: true, trim: true },
+    city: { type: String, required: true, trim: true },
     threshold: { type: Number, default: 10, min: 0 }, // low-stock warning level
     notes: { type: String, trim: true, default: '' },
     lastUpdatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Volunteer', default: null },
@@ -18,7 +18,7 @@ const ResourceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-ResourceSchema.index({ zone: 1, category: 1 });
+ResourceSchema.index({ city: 1, category: 1 });
 ResourceSchema.index({ quantity: 1 });
 
 ResourceSchema.virtual('isLow').get(function () {
