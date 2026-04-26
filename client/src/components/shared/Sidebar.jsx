@@ -5,13 +5,15 @@ import { useEffect, useState } from 'react';
 import api from '../../api/axios';
 
 const NAV_ITEMS = [
-  { to: '/',          icon: '⊞', label: 'DASH',        exact: true },
-  { to: '/tasks',     icon: '◈', label: 'TASKS',       roles: ['coordinator','volunteer'] },
-  { to: '/dashboard', icon: '◉', label: 'DEPLOYMENT',  roles: ['coordinator','volunteer'] },
-  { to: '/leaderboard', icon: '♦', label: 'RANKS',     roles: ['coordinator','volunteer'] },
-  { to: '/analytics', icon: '⊹', label: 'INTEL',       roles: ['coordinator'] },
-  { to: '/resources', icon: '◫', label: 'LOGISTICS',   roles: ['coordinator'] },
-  { to: '/crisis',    icon: '⚠', label: 'CRISIS',      roles: ['coordinator'], crisis: true },
+  { to: '/',              icon: '⊞', label: 'DASH',         exact: true },
+  { to: '/tasks',         icon: '◈', label: 'TASKS',        roles: ['coordinator','volunteer'] },
+  { to: '/dashboard',     icon: '◉', label: 'DEPLOY',       roles: ['coordinator','volunteer'] },
+  { to: '/leaderboard',   icon: '♦', label: 'RANKS',        roles: ['coordinator','volunteer'] },
+  { to: '/analytics',     icon: '⊹', label: 'INTEL',        roles: ['coordinator'] },
+  { to: '/resources',     icon: '◫', label: 'LOGISTICS',    roles: ['coordinator'] },
+  { to: '/beneficiaries', icon: '♡', label: 'AID LOG',      roles: ['coordinator'] },
+  { to: '/report',        icon: '⚑', label: 'REPORT',       public: true },
+  { to: '/crisis',        icon: '⚠', label: 'CRISIS',       roles: ['coordinator'], crisis: true },
 ];
 
 export default function Sidebar() {
@@ -29,6 +31,7 @@ export default function Sidebar() {
   }, [user, lastEvent?.timestamp]);
 
   const visibleItems = NAV_ITEMS.filter(item => {
+    if (item.public) return true;
     if (!item.roles) return true;
     return item.roles.includes(user?.role);
   });
