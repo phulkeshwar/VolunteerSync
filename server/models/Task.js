@@ -30,6 +30,14 @@ const TaskSchema = new mongoose.Schema(
     assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'Volunteer', default: null },
     aiSuggestions: [AISuggestionSchema],
     completedAt: { type: Date, default: null },
+    contactDetails: { type: String, trim: true, default: '' },
+    gpsLocation: { type: String, trim: true, default: '' },
+    teamMembers: [{
+      volunteerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Volunteer' },
+      name: String,
+      role: String,
+      reason: String
+    }],
   },
   { timestamps: true }
 );

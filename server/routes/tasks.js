@@ -76,7 +76,7 @@ router.get('/:id', protect, async (req, res) => {
 
 router.post('/', protect, requireRole('coordinator'), async (req, res) => {
   try {
-    const { title, description, requiredSkills = [], urgency, city } = req.body;
+    const { title, description, requiredSkills = [], urgency, city, contactDetails, gpsLocation } = req.body;
 
     if (!title || !city) {
       return res.status(400).json({ message: 'Title and city are required.' });
@@ -88,6 +88,8 @@ router.post('/', protect, requireRole('coordinator'), async (req, res) => {
       requiredSkills,
       urgency: urgency || 'Medium',
       city,
+      contactDetails,
+      gpsLocation,
       createdBy: req.user._id,
     });
 
@@ -119,12 +121,21 @@ router.put('/:id', protect, async (req, res) => {
     const previousAssignedTo = task.assignedTo ? String(task.assignedTo) : null;
 
     if (isCoordinator) {
-      const editableFields = ['title', 'description', 'requiredSkills', 'urgency', 'city'];
+      const editableFields = ['title', 'description', 'requiredSkills', 'urgency', 'city', 'contactDetails', 'gpsLocation'];
       editableFields.forEach((field) => {
         if (Object.prototype.hasOwnProperty.call(req.body, field)) {
           task[field] = req.body[field];
         }
       });
+
+      if (Object.prototype.hasOwnProperty.call(req.body, 'team')) {
+        task.teamMembers = req.body.team.map(m => ({
+          volunteerId: m.volunteerId,
+          name: m.name,
+          role: m.role,
+          reason: m.reason
+        }));
+      }
 
       if (Object.prototype.hasOwnProperty.call(req.body, 'assignedTo')) {
         const nextAssignedTo = req.body.assignedTo || null;

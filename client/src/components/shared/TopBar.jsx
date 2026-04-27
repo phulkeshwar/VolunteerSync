@@ -59,9 +59,7 @@ export default function TopBar() {
       <div className="topbar__right">
         {user && (
           <>
-            <button className="topbar__icon-btn" title="Live feed">⦿</button>
-            <button className="topbar__icon-btn" title="Notifications">🔔</button>
-            <button className="topbar__icon-btn" title="User">◉</button>
+            
             {crisisActive ? (
               <button className="topbar__crisis-btn topbar__crisis-btn--active">
                 ⚠ CRISIS MODE

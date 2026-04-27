@@ -49,9 +49,9 @@ export default function TeamFormationPanel({ taskId, taskTitle }) {
   async function handleDeployTeam() {
     if (!team.length) return;
     try {
-      // Assign team lead as primary assignee
+      // Assign team lead as primary assignee, but pass the whole team array to save teamMembers
       const lead = team.find((m) => m.role === 'Team Lead') || team[0];
-      await api.put(`/tasks/${taskId}`, { assignedTo: lead.volunteerId, status: 'Assigned' });
+      await api.put(`/tasks/${taskId}`, { assignedTo: lead.volunteerId, team, status: 'Assigned' });
       setSuccess(`Team deployed! ${lead.name} assigned as primary contact.`);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to deploy team.');

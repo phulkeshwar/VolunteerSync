@@ -73,6 +73,20 @@ export function SocketProvider({ children }) {
           payload,
           timestamp: new Date().toISOString(),
         }),
+      crisis_activated: (payload) =>
+        appendActivity({
+          type: 'crisis_activated',
+          message: `🚨 CRISIS MODE ACTIVATED in ${payload.city || 'General'}`,
+          payload,
+          timestamp: new Date().toISOString(),
+        }),
+      crisis_deactivated: (payload) =>
+        appendActivity({
+          type: 'crisis_deactivated',
+          message: 'Crisis mode deactivated',
+          payload,
+          timestamp: new Date().toISOString(),
+        }),
     };
 
     Object.entries(listeners).forEach(([eventName, handler]) => {

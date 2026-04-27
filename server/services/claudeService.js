@@ -218,7 +218,7 @@ TASK:
 AVAILABLE VOLUNTEERS:
 ${eligible.map((v, i) => `${i + 1}. ID:${v._id} | ${v.name} | Skills: ${(v.skills||[]).join(',')||'None'} | Exp: ${v.experience} | City: ${v.location?.city||'?'} | Tasks: ${v.totalTasks}`).join('\n')}
 
-Assign specific ROLES to 2–4 volunteers forming a balanced team (e.g., Team Lead, Medic, Logistics, Driver, Translator).
+Assign specific ROLES to 3–5 volunteers (or up to 8 if Urgency is Critical) forming a balanced team (e.g., Team Lead, Medic, Logistics, Driver, Translator).
 Each team member should have a distinct role suited to their skills.
 
 Respond with valid JSON only:

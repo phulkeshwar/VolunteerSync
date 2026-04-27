@@ -37,6 +37,7 @@ export default function CrisisPage() {
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState(false);
   const [description, setDescription] = useState('');
+  const [city, setCity] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [generatedTasks, setGeneratedTasks] = useState([]);
@@ -61,14 +62,14 @@ export default function CrisisPage() {
   }, [lastEvent?.timestamp]);
 
   async function handleActivate() {
-    if (!description.trim()) {
-      setError('Please describe the crisis situation.');
+    if (!description.trim() || !city) {
+      setError('Please describe the crisis situation and select a city.');
       return;
     }
     setActivating(true);
     setError('');
     try {
-      const res = await api.post('/crisis/activate', { description });
+      const res = await api.post('/crisis/activate', { description, city });
       setCrisisState(res.data.crisis);
       setSuccess(`Crisis mode activated. ${res.data.crisis.autoMatchResults?.length || 0} critical tasks auto-matched.`);
     } catch (err) {
@@ -191,6 +192,19 @@ export default function CrisisPage() {
                   placeholder="Describe the emergency: e.g. Flash flood in Zone B affecting 5,000 residents. Roads blocked. Medical assistance and food distribution urgently needed."
                   disabled={!isCoordinator}
                 />
+              </div>
+              <div className="field">
+                <label>Target City</label>
+                <select
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  disabled={!isCoordinator}
+                >
+                  <option value="" disabled>Select a city</option>
+                  {['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Ahmedabad', 'Chennai', 'Kolkata', 'Surat', 'Pune', 'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal'].map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
               </div>
               {isCoordinator && (
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>

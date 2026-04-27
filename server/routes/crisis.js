@@ -12,6 +12,7 @@ let crisisState = {
   activatedAt: null,
   activatedBy: null,
   description: '',
+  city: '',
   autoMatchResults: [],
 };
 
@@ -30,6 +31,7 @@ router.post('/activate', protect, requireRole('coordinator'), async (req, res) =
       activatedAt: new Date().toISOString(),
       activatedBy: req.user.name,
       description,
+      city: req.body.city || 'General',
       autoMatchResults: [],
     };
 
@@ -53,7 +55,7 @@ router.post('/activate', protect, requireRole('coordinator'), async (req, res) =
           autoMatchResults.push({
             taskId: String(task._id),
             taskTitle: task.title,
-            zone: task.zone,
+            city: task.city,
             topMatch: result.matches[0],
           });
 

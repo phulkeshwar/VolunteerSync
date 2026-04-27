@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Badge from '../shared/Badge';
 import AIMatchResult from './AIMatchResult';
 import TeamFormationPanel from './TeamFormationPanel';
@@ -21,9 +22,36 @@ export default function TaskCard({
   const isBusy = busyTaskId === task.id;
   const isCoordinator = currentUser.role === 'coordinator';
   const isAssignedVolunteer = task.assignedTo?.id === currentUser.id;
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (task.status === 'Completed' && !isExpanded) {
+    return (
+      <article 
+        className="task-card task-card--compact" 
+        onClick={() => setIsExpanded(true)} 
+        style={{ cursor: 'pointer', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', borderLeft: '4px solid #057A55' }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <h4 style={{ margin: 0, fontSize: '1rem', lineHeight: 1.2 }}>{task.title}</h4>
+          <Badge variant="success">Completed</Badge>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#9CA3AF' }}>
+          <span>📍 {task.city}</span>
+          {task.assignedTo && <span>👤 {task.assignedTo.name}</span>}
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article className="task-card">
+      {task.status === 'Completed' && (
+        <div style={{ textAlign: 'right', marginBottom: '-0.5rem' }}>
+          <button type="button" className="btn btn--ghost" onClick={() => setIsExpanded(false)} style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}>
+            Collapse
+          </button>
+        </div>
+      )}
       <div className="task-card__head">
         <div>
           <h3>{task.title}</h3>
@@ -51,7 +79,19 @@ export default function TaskCard({
         </div>
       </div>
 
-      {task.assignedTo ? (
+      {task.teamMembers && task.teamMembers.length > 0 ? (
+        <div className="task-team" style={{ marginTop: '0.5rem' }}>
+          <span className="muted-label">Team Members ({task.teamMembers.length})</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.25rem' }}>
+            {task.teamMembers.map(m => (
+              <div key={m.volunteerId} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', background: '#374151', padding: '0.4rem 0.6rem', borderRadius: '4px' }}>
+                <strong>{m.name}</strong>
+                <span style={{ color: '#9CA3AF' }}>{m.role}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : task.assignedTo ? (
         <div className="task-assignee">
           <span className="muted-label">Assigned volunteer</span>
           <strong>{task.assignedTo.name}</strong>

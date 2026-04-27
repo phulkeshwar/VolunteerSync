@@ -85,6 +85,11 @@ export default function Dashboard() {
       ) : (
         <VolunteerProfile activeTasks={tasks} />
       )}
+
+      <footer className="dashboard-footer" style={{ marginTop: 'auto', padding: '2rem 0', textAlign: 'center', color: '#6B7280', fontSize: '0.85rem', borderTop: '1px solid #374151', paddingTop: '1.5rem', marginTop: '3rem' }}>
+        <p>© 2026 VolunteerSync. All rights reserved.</p>
+        <p style={{ marginTop: '0.25rem' }}>AI-Powered Coordination • Real-World Impact</p>
+      </footer>
     </div>
   );
 }

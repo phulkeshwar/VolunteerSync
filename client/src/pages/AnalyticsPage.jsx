@@ -153,26 +153,6 @@ export default function AnalyticsPage() {
         )}
       </section>
 
-      {/* Predictive Demand Forecasting */}
-      <section className="panel">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">AI Forecasting</p>
-            <h2>Predictive Demand Analysis</h2>
-            <p>AI predicts high-need cities for the next 24–48 hours based on historical patterns.</p>
-          </div>
-          {!forecast && (
-            <button className="btn btn--primary" onClick={loadForecast} disabled={forecastLoading} id="btn-load-forecast">
-              {forecastLoading ? '🤖 Forecasting...' : '🤖 Generate Forecast'}
-            </button>
-          )}
-        </div>
-        <DemandHeatmap
-          forecast={forecast?.forecast || []}
-          summary={forecast?.summary || ''}
-          loading={forecastLoading}
-        />
-      </section>
     </div>
   );
 }

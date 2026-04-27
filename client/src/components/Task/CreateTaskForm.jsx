@@ -5,9 +5,10 @@ import SkillTagInput from '../Volunteer/SkillTagInput';
 const INITIAL_FORM = {
   title: '',
   description: '',
-  requiredSkills: [],
   urgency: 'Medium',
   city: '',
+  contactDetails: '',
+  gpsLocation: '',
 };
 
 export default function CreateTaskForm({ onCreate, creating }) {
@@ -55,10 +56,29 @@ export default function CreateTaskForm({ onCreate, creating }) {
       requiredSkills: task.requiredSkills || [],
       urgency: task.urgency || 'Medium',
       city: task.city && task.city !== 'General' ? task.city : form.city,
+      contactDetails: form.contactDetails || '',
+      gpsLocation: form.gpsLocation || '',
     });
     setGeneratedTasks([]);
     setShowGen(false);
     setCrisisDesc('');
+  }
+
+  function handleGPS() {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords = `${position.coords.latitude.toFixed(5)}, ${position.coords.longitude.toFixed(5)}`;
+          setForm((prev) => ({ ...prev, gpsLocation: coords }));
+        },
+        (error) => {
+          console.warn('Geolocation error:', error.message);
+          alert('Failed to get GPS location. Please ensure location services are enabled.');
+        }
+      );
+    } else {
+      alert('Geolocation is not supported by your browser.');
+    }
   }
 
   return (
@@ -142,6 +162,16 @@ export default function CreateTaskForm({ onCreate, creating }) {
           />
         </div>
 
+        <div className="field">
+          <label>Contact Details (Phone / WhatsApp)</label>
+          <input
+            type="text"
+            placeholder="e.g. +91 98765 43210"
+            value={form.contactDetails}
+            onChange={(event) => setForm((current) => ({ ...current, contactDetails: event.target.value }))}
+          />
+        </div>
+
         <SkillTagInput
           label="Required skills"
           value={form.requiredSkills}
@@ -162,31 +192,48 @@ export default function CreateTaskForm({ onCreate, creating }) {
             </select>
           </div>
 
-          <div className="field">
-            <label>City</label>
-            <select
-              value={form.city}
-              onChange={(event) => setForm((current) => ({ ...current, city: event.target.value }))}
-              required
-            >
-              <option value="" disabled>Select a city</option>
-              <option value="Mumbai">Mumbai</option>
-              <option value="Delhi">Delhi</option>
-              <option value="Bangalore">Bangalore</option>
-              <option value="Hyderabad">Hyderabad</option>
-              <option value="Ahmedabad">Ahmedabad</option>
-              <option value="Chennai">Chennai</option>
-              <option value="Kolkata">Kolkata</option>
-              <option value="Surat">Surat</option>
-              <option value="Pune">Pune</option>
-              <option value="Jaipur">Jaipur</option>
-              <option value="Lucknow">Lucknow</option>
-              <option value="Kanpur">Kanpur</option>
-              <option value="Nagpur">Nagpur</option>
-              <option value="Indore">Indore</option>
-              <option value="Thane">Thane</option>
-              <option value="Bhopal">Bhopal</option>
-            </select>
+          <div className="field" style={{ display: 'flex', flexDirection: 'column' }}>
+            <label>City & Location</label>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <select
+                value={form.city}
+                onChange={(event) => setForm((current) => ({ ...current, city: event.target.value }))}
+                required
+                style={{ flex: 1 }}
+              >
+                <option value="" disabled>Select a city</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Bangalore">Bangalore</option>
+                <option value="Hyderabad">Hyderabad</option>
+                <option value="Ahmedabad">Ahmedabad</option>
+                <option value="Chennai">Chennai</option>
+                <option value="Kolkata">Kolkata</option>
+                <option value="Surat">Surat</option>
+                <option value="Pune">Pune</option>
+                <option value="Jaipur">Jaipur</option>
+                <option value="Lucknow">Lucknow</option>
+                <option value="Kanpur">Kanpur</option>
+                <option value="Nagpur">Nagpur</option>
+                <option value="Indore">Indore</option>
+                <option value="Thane">Thane</option>
+                <option value="Bhopal">Bhopal</option>
+              </select>
+              <button 
+                type="button" 
+                className="btn btn--secondary" 
+                onClick={handleGPS} 
+                title="Use my GPS"
+                style={{ padding: '0 0.75rem', flexShrink: 0 }}
+              >
+                📍 GPS
+              </button>
+            </div>
+            {form.gpsLocation && (
+              <p className="muted-text" style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                Coordinates: {form.gpsLocation}
+              </p>
+            )}
           </div>
         </div>
 
