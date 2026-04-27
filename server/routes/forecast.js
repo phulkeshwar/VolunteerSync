@@ -13,12 +13,12 @@ router.get('/demand', protect, requireRole('coordinator'), async (req, res) => {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     const [currentZones, historicalRaw, volunteerZones] = await Promise.all([
-      // Current active task counts per zone
+      // Current active task counts per city
       Task.aggregate([
         { $match: { status: { $in: ['Open', 'Assigned', 'In Progress'] } } },
         {
           $group: {
-            _id: { $ifNull: ['$zone', 'Unassigned'] },
+            _id: { $ifNull: ['$city', 'Unassigned'] },
             activeTasks: { $sum: 1 },
             criticalTasks: {
               $sum: { $cond: [{ $eq: ['$urgency', 'Critical'] }, 1, 0] },
@@ -31,17 +31,17 @@ router.get('/demand', protect, requireRole('coordinator'), async (req, res) => {
         { $match: { status: 'Completed', completedAt: { $gte: sevenDaysAgo } } },
         {
           $group: {
-            _id: { $ifNull: ['$zone', 'Unassigned'] },
+            _id: { $ifNull: ['$city', 'Unassigned'] },
             completed: { $sum: 1 },
           },
         },
       ]),
-      // Volunteer zone distribution
+      // Volunteer city distribution
       Volunteer.aggregate([
         { $match: { role: 'volunteer' } },
         {
           $group: {
-            _id: { $ifNull: ['$location.zone', 'Unassigned'] },
+            _id: { $ifNull: ['$location.city', 'Unassigned'] },
             volunteers: { $sum: 1 },
             availableVolunteers: {
               $sum: { $cond: ['$availability', 1, 0] },
@@ -51,12 +51,12 @@ router.get('/demand', protect, requireRole('coordinator'), async (req, res) => {
       ]),
     ]);
 
-    // Merge zone data
-    const zoneMap = new Map();
+    // Merge city data
+    const cityMap = new Map();
 
     currentZones.forEach((z) => {
-      zoneMap.set(z._id, {
-        zone: z._id,
+      cityMap.set(z._id, {
+        city: z._id,
         activeTasks: z.activeTasks,
         criticalTasks: z.criticalTasks,
         volunteers: 0,
@@ -65,16 +65,16 @@ router.get('/demand', protect, requireRole('coordinator'), async (req, res) => {
     });
 
     volunteerZones.forEach((vz) => {
-      const zone = vz._id || 'Unassigned';
-      const existing = zoneMap.get(zone) || { zone, activeTasks: 0, criticalTasks: 0 };
+      const city = vz._id || 'Unassigned';
+      const existing = cityMap.get(city) || { city, activeTasks: 0, criticalTasks: 0 };
       existing.volunteers = vz.volunteers;
       existing.availableVolunteers = vz.availableVolunteers;
-      zoneMap.set(zone, existing);
+      cityMap.set(city, existing);
     });
 
-    const currentData = Array.from(zoneMap.values());
+    const currentData = Array.from(cityMap.values());
     const historicalData = historicalRaw.map((h) => ({
-      zone: h._id,
+      city: h._id,
       completed: h.completed,
       avgUrgency: 'Medium',
     }));

@@ -106,6 +106,9 @@ export default function TasksPage() {
     try {
       await api.put(`/tasks/${task.id}`, { status });
 
+      // Optimistically update local state
+      setTasks((prev) => prev.map((t) => t.id === task.id ? { ...t, status } : t));
+
       if (user.role === 'volunteer' && status === 'In Progress') {
         emitEvent('volunteer_accept_task', {
           taskId: task.id,

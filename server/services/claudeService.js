@@ -163,7 +163,7 @@ Respond with valid JSON only using this shape:
 
   return {
     matches: parsed.matches
-      .filter((item) => item && item.volunteerId && item.name)
+      .filter((item) => item && item.volunteerId && item.name && volunteers.some(v => String(v._id) === String(item.volunteerId)))
       .slice(0, 3)
       .map((item) => ({
         volunteerId: String(item.volunteerId),
@@ -216,7 +216,7 @@ TASK:
 - Urgency: ${task.urgency}
 
 AVAILABLE VOLUNTEERS:
-${eligible.map((v, i) => `${i + 1}. ID:${v._id} | ${v.name} | Skills: ${(v.skills||[]).join(',')||'None'} | Exp: ${v.experience} | Zone: ${v.location?.zone||'?'} | Tasks: ${v.totalTasks}`).join('\n')}
+${eligible.map((v, i) => `${i + 1}. ID:${v._id} | ${v.name} | Skills: ${(v.skills||[]).join(',')||'None'} | Exp: ${v.experience} | City: ${v.location?.city||'?'} | Tasks: ${v.totalTasks}`).join('\n')}
 
 Assign specific ROLES to 2–4 volunteers forming a balanced team (e.g., Team Lead, Medic, Logistics, Driver, Translator).
 Each team member should have a distinct role suited to their skills.
@@ -237,7 +237,14 @@ Respond with valid JSON only:
 
       const parsed = parseJSONResponse(extractTextFromAnthropicResponse(response));
       if (Array.isArray(parsed.team) && parsed.team.length) {
-        return { team: parsed.team.slice(0, 4), teamRationale: parsed.teamRationale || '' };
+        const validTeam = parsed.team
+          .filter(m => m && m.volunteerId && eligible.some(v => String(v._id) === String(m.volunteerId)))
+          .map(m => ({ ...m, volunteerId: String(m.volunteerId) }))
+          .slice(0, 4);
+        
+        if (validTeam.length > 0) {
+          return { team: validTeam, teamRationale: parsed.teamRationale || '' };
+        }
       }
     } catch (err) {
       console.warn('Team formation AI failed, using fallback:', err.message);
@@ -393,20 +400,20 @@ async function forecastZoneDemand(historicalData, currentData) {
       const prompt = `
 You are a predictive analytics expert for disaster relief operations.
 
-HISTORICAL TASK COMPLETION (last 7 days by zone):
-${historicalData.map((d) => `${d.zone}: ${d.completed} completed, ${d.avgUrgency} avg urgency`).join('\n') || 'No historical data'}
+HISTORICAL TASK COMPLETION (last 7 days by city):
+${historicalData.map((d) => `${d.city}: ${d.completed} completed, ${d.avgUrgency} avg urgency`).join('\n') || 'No historical data'}
 
-CURRENT ZONE STATUS:
-${currentData.map((z) => `${z.zone}: ${z.activeTasks} active tasks, ${z.volunteers} volunteers, ${z.availableVolunteers} available`).join('\n') || 'No current data'}
+CURRENT CITY STATUS:
+${currentData.map((z) => `${z.city}: ${z.activeTasks} active tasks, ${z.volunteers} volunteers, ${z.availableVolunteers} available`).join('\n') || 'No current data'}
 
-Predict demand/risk level for each zone for the next 24–48 hours.
+Predict demand/risk level for each city for the next 24–48 hours.
 Assign a risk score 0–100 and suggest pre-allocation actions.
 
 Respond with valid JSON only:
 {
   "forecast": [
     {
-      "zone": "string",
+      "city": "string",
       "riskScore": 85,
       "trend": "increasing|stable|decreasing",
       "predictedTasks": 12,
@@ -433,13 +440,13 @@ Respond with valid JSON only:
 
   // Algorithmic fallback
   const forecast = currentData.map((z) => {
-    const historical = historicalData.find((h) => h.zone === z.zone);
+    const historical = historicalData.find((h) => h.city === z.city);
     const taskPressure = z.activeTasks / Math.max(z.volunteers || 1, 1);
     const volunteerShortage = Math.max(0, z.activeTasks - z.availableVolunteers);
     const riskScore = Math.min(100, Math.round(taskPressure * 40 + volunteerShortage * 10 + (historical?.completed > 5 ? 15 : 0)));
 
     return {
-      zone: z.zone,
+      city: z.city,
       riskScore,
       trend: taskPressure > 1.5 ? 'increasing' : taskPressure < 0.5 ? 'decreasing' : 'stable',
       predictedTasks: Math.round(z.activeTasks * 1.2),
