@@ -294,7 +294,7 @@ Respond with valid JSON only:
       "description": "string",
       "requiredSkills": ["skill1", "skill2"],
       "urgency": "Critical|Medium|Low",
-      "zone": "string (inferred from description or 'General')",
+      "city": "string (inferred from description or 'General')",
       "rationale": "why this task is needed"
     }
   ]
@@ -317,9 +317,9 @@ Respond with valid JSON only:
   // Fallback: generic task templates
   return {
     tasks: [
-      { title: 'Emergency Medical Assistance', description: description, requiredSkills: ['First Aid', 'Medical'], urgency: 'Critical', zone: 'General', rationale: 'Medical support needed immediately.' },
-      { title: 'Search and Rescue Operations', description: description, requiredSkills: ['Rescue', 'Physical Fitness'], urgency: 'Critical', zone: 'General', rationale: 'Locate and assist survivors.' },
-      { title: 'Emergency Supply Distribution', description: description, requiredSkills: ['Logistics', 'Driving'], urgency: 'Medium', zone: 'General', rationale: 'Distribute food, water, and supplies.' },
+      { title: 'Emergency Medical Assistance', description: description, requiredSkills: ['First Aid', 'Medical'], urgency: 'Critical', city: 'General', rationale: 'Medical support needed immediately.' },
+      { title: 'Search and Rescue Operations', description: description, requiredSkills: ['Rescue', 'Physical Fitness'], urgency: 'Critical', city: 'General', rationale: 'Locate and assist survivors.' },
+      { title: 'Emergency Supply Distribution', description: description, requiredSkills: ['Logistics', 'Driving'], urgency: 'Medium', city: 'General', rationale: 'Distribute food, water, and supplies.' },
     ],
   };
 }

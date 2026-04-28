@@ -115,7 +115,7 @@ export default function CrisisPage() {
         description: task.description,
         requiredSkills: task.requiredSkills,
         urgency: task.urgency,
-        zone: task.zone || 'General',
+        city: task.city || crisisState?.city || 'General',
       });
       setSuccess(`Task "${task.title}" created successfully.`);
       setGeneratedTasks((prev) => prev.filter((t) => t !== task));
@@ -240,7 +240,7 @@ export default function CrisisPage() {
                 <article key={result.taskId} className="mini-card panel" style={{ padding: '1rem' }}>
                   <div>
                     <strong>{result.taskTitle}</strong>
-                    <p className="muted-text">Zone: {result.zone}</p>
+                    <p className="muted-text">City: {result.city}</p>
                     {result.topMatch && (
                       <p className="muted-text">→ Best match: {result.topMatch.name} ({result.topMatch.score}%)</p>
                     )}
@@ -282,7 +282,7 @@ export default function CrisisPage() {
                       {task.requiredSkills.map((s) => <span key={s} className="tag">{s}</span>)}
                     </div>
                   )}
-                  <p className="muted-text" style={{ fontSize: '0.85rem' }}>📍 {task.zone}</p>
+                  <p className="muted-text" style={{ fontSize: '0.85rem' }}>📍 {task.city || crisisState?.city || 'General'}</p>
                   {isCoordinator && (
                     <button className="btn btn--primary" style={{ fontSize: '0.85rem', minHeight: '2.2rem' }} onClick={() => handleCreateTask(task)}>
                       Deploy Task
