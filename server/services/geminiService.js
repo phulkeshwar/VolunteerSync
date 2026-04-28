@@ -1,4 +1,4 @@
-const Anthropic = require('@anthropic-ai/sdk');
+const { GoogleGenAI } = require('@google/genai');
 
 const EXPERIENCE_WEIGHT = {
   Beginner: 10,
@@ -68,16 +68,11 @@ function fallbackMatchVolunteers(task, volunteers) {
   return { matches };
 }
 
-function extractTextFromAnthropicResponse(response) {
-  if (!response || !Array.isArray(response.content)) {
+function extractTextFromGeminiResponse(response) {
+  if (!response || !response.text) {
     return '';
   }
-
-  return response.content
-    .filter((item) => item.type === 'text')
-    .map((item) => item.text)
-    .join('\n')
-    .trim();
+  return response.text.trim();
 }
 
 function parseJSONResponse(text) {
@@ -97,14 +92,14 @@ function parseJSONResponse(text) {
   }
 }
 
-function getAnthropicClient() {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+function getGeminiClient() {
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
-  return new Anthropic({ apiKey });
+  return new GoogleGenAI({ apiKey });
 }
 
-async function runAnthropicMatch(task, volunteers) {
-  const client = getAnthropicClient();
+async function runGeminiMatch(task, volunteers) {
+  const client = getGeminiClient();
   if (!client) return null;
 
   const prompt = `
@@ -149,13 +144,12 @@ Respond with valid JSON only using this shape:
   ]
 }`;
 
-  const response = await client.messages.create({
-    model: process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest',
-    max_tokens: 800,
-    messages: [{ role: 'user', content: prompt }],
+  const response = await client.models.generateContent({
+    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    contents: prompt,
   });
 
-  const parsed = parseJSONResponse(extractTextFromAnthropicResponse(response));
+  const parsed = parseJSONResponse(extractTextFromGeminiResponse(response));
 
   if (!Array.isArray(parsed.matches)) {
     throw new Error('AI response did not contain a matches array.');
@@ -184,12 +178,12 @@ async function matchVolunteersToTask(task, volunteers) {
   }
 
   try {
-    const aiResult = await runAnthropicMatch(task, eligibleVolunteers);
+    const aiResult = await runGeminiMatch(task, eligibleVolunteers);
     if (aiResult?.matches?.length) {
       return aiResult;
     }
   } catch (error) {
-    console.warn('Anthropic matching failed, using fallback scorer:', error.message);
+    console.warn('Gemini matching failed, using fallback scorer:', error.message);
   }
 
   return fallbackMatchVolunteers(task, eligibleVolunteers);
@@ -201,7 +195,7 @@ async function formTeamForTask(task, volunteers) {
   const eligible = volunteers.filter((v) => v.role === 'volunteer' && v.availability);
   if (!eligible.length) return { team: [], roles: [] };
 
-  const client = getAnthropicClient();
+  const client = getGeminiClient();
 
   if (client) {
     try {
@@ -229,18 +223,17 @@ Respond with valid JSON only:
   "teamRationale": "Overall reasoning for this team composition"
 }`;
 
-      const response = await client.messages.create({
-        model: process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }],
+      const response = await client.models.generateContent({
+        model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+        contents: prompt,
       });
 
-      const parsed = parseJSONResponse(extractTextFromAnthropicResponse(response));
+      const parsed = parseJSONResponse(extractTextFromGeminiResponse(response));
       if (Array.isArray(parsed.team) && parsed.team.length) {
         const validTeam = parsed.team
           .filter(m => m && m.volunteerId && eligible.some(v => String(v._id) === String(m.volunteerId)))
           .map(m => ({ ...m, volunteerId: String(m.volunteerId) }))
-          .slice(0, 4);
+          .slice(0, 8);
         
         if (validTeam.length > 0) {
           return { team: validTeam, teamRationale: parsed.teamRationale || '' };
@@ -282,7 +275,7 @@ Respond with valid JSON only:
 // ─── AI Auto-Task Generation ──────────────────────────────────────────────────
 
 async function generateTasksFromCrisis(description) {
-  const client = getAnthropicClient();
+  const client = getGeminiClient();
 
   if (client) {
     try {
@@ -307,13 +300,12 @@ Respond with valid JSON only:
   ]
 }`;
 
-      const response = await client.messages.create({
-        model: process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest',
-        max_tokens: 1500,
-        messages: [{ role: 'user', content: prompt }],
+      const response = await client.models.generateContent({
+        model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+        contents: prompt,
       });
 
-      const parsed = parseJSONResponse(extractTextFromAnthropicResponse(response));
+      const parsed = parseJSONResponse(extractTextFromGeminiResponse(response));
       if (Array.isArray(parsed.tasks) && parsed.tasks.length) {
         return { tasks: parsed.tasks.slice(0, 5) };
       }
@@ -335,7 +327,7 @@ Respond with valid JSON only:
 // ─── Resource Redistribution AI ───────────────────────────────────────────────
 
 async function suggestResourceRedistribution(resources, zones) {
-  const client = getAnthropicClient();
+  const client = getGeminiClient();
 
   const summary = zones.map((z) => {
     const zoneResources = resources.filter((r) => r.zone === z.zone);
@@ -371,13 +363,12 @@ Respond with valid JSON only:
   "overallAssessment": "brief summary of resource situation"
 }`;
 
-      const response = await client.messages.create({
-        model: process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest',
-        max_tokens: 1200,
-        messages: [{ role: 'user', content: prompt }],
+      const response = await client.models.generateContent({
+        model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+        contents: prompt,
       });
 
-      const parsed = parseJSONResponse(extractTextFromAnthropicResponse(response));
+      const parsed = parseJSONResponse(extractTextFromGeminiResponse(response));
       if (parsed.suggestions) return parsed;
     } catch (err) {
       console.warn('Resource redistribution AI failed:', err.message);
@@ -393,7 +384,7 @@ Respond with valid JSON only:
 // ─── Demand Forecasting AI ────────────────────────────────────────────────────
 
 async function forecastZoneDemand(historicalData, currentData) {
-  const client = getAnthropicClient();
+  const client = getGeminiClient();
 
   if (client) {
     try {
@@ -425,13 +416,12 @@ Respond with valid JSON only:
   "summary": "overall situation summary"
 }`;
 
-      const response = await client.messages.create({
-        model: process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest',
-        max_tokens: 1200,
-        messages: [{ role: 'user', content: prompt }],
+      const response = await client.models.generateContent({
+        model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+        contents: prompt,
       });
 
-      const parsed = parseJSONResponse(extractTextFromAnthropicResponse(response));
+      const parsed = parseJSONResponse(extractTextFromGeminiResponse(response));
       if (parsed.forecast) return parsed;
     } catch (err) {
       console.warn('Demand forecasting AI failed, using algorithmic fallback:', err.message);

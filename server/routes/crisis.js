@@ -2,7 +2,7 @@ const express = require('express');
 const Task = require('../models/Task');
 const Volunteer = require('../models/Volunteer');
 const { protect, requireRole } = require('../middleware/authMiddleware');
-const { matchVolunteersToTask } = require('../services/claudeService');
+const { matchVolunteersToTask } = require('../services/geminiService');
 
 const router = express.Router();
 

@@ -3,7 +3,7 @@ const Resource = require('../models/Resource');
 const Task = require('../models/Task');
 const Volunteer = require('../models/Volunteer');
 const { protect, requireRole } = require('../middleware/authMiddleware');
-const { suggestResourceRedistribution } = require('../services/claudeService');
+const { suggestResourceRedistribution } = require('../services/geminiService');
 
 const router = express.Router();
 

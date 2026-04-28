@@ -792,9 +792,11 @@ npm install axios react-router-dom socket.io-client recharts \
 | Service | Purpose | Free Tier |
 |---|---|---|
 | [Vercel](https://vercel.com) | React frontend | ✅ Yes |
-| [Railway](https://railway.app) | Node.js backend | ✅ $5 credit |
+| [Render](https://render.com) | Node.js backend | ✅ Yes |
 | [MongoDB Atlas](https://mongodb.com/atlas) | Database | ✅ 512MB |
 | [Anthropic](https://console.anthropic.com) | Claude AI API | ✅ Trial credits |
+
+For full Vercel + Render deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 **Live URL format:**
 - Frontend: `https://volunteersync.vercel.app`
